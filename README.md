@@ -4,6 +4,8 @@ Migración del control de una línea industrial de inmersión en látex de 24 ti
 
 *Migrating a 24-tank industrial latex dipping line from Siemens LOGO! relays to a Schneider TM221 PLC — sensor integration, I/O architecture, HMI, and documentation.*
 
+![Vista de las tinas de látex](media/00-antes/Vista%20de%20las%20tinas%20de%20latex.jpeg)
+
 ## Por qué existe este proyecto
 
 La línea actual se controla con dos LOGO! y lógica de relés. Ya hubo **rebalses de tinas** en producción. El objetivo es:
@@ -19,11 +21,15 @@ La línea actual se controla con dos LOGO! y lógica de relés. Ya hubo **rebals
 |---|---|
 | [proyecto_plc_tinas_latex.md](proyecto_plc_tinas_latex.md) | Documento técnico: hardware, mapa de I/O, FSM de llenado, conexiones, HMI, commissioning y pendientes |
 | [media/](media/) | Fotografías y videos del proceso (antes / durante / después) |
+| [media/00-antes/](media/00-antes/README.md) | Levantamiento del estado actual: galería con observaciones por foto |
 
 ## Hoja de ruta
 
 ### Fase 0 — Levantamiento del estado actual
-- [ ] Fotos y videos del tablero actual (LOGO! + relés), de las tinas y de los sensores instalados
+- [x] Fotos del gabinete (exterior e interior), de las tinas, del ingreso de látex y de los agitadores → [galería](media/00-antes/README.md)
+- [x] Video de la operación actual
+- [ ] Fotos de detalle: sensor capacitivo instalado (placa/modelo), válvula de ingreso de látex (placa/modelo), placa de la fuente de 24VDC
+- [ ] Trazar el cableado de las dos filas de relés (¿sensor y válvula por tina?)
 - [ ] Registrar cómo opera hoy el llenado y qué hace el operador cuando hay un problema
 - [ ] Tomar métricas base (ver [Métricas de mejora](#métricas-de-mejora))
 
@@ -86,9 +92,9 @@ media/
 └── 04-despliegue/
 ```
 
-Nombre sugerido: `AAAA-MM-DD_tema_descripcion.ext`, por ejemplo `2026-10-05_piloto_falla-timeout.mp4`.
+Cada archivo lleva un **nombre descriptivo** de lo que muestra (por ejemplo `Gabinete Tina Latex.jpeg`). Cada carpeta tiene un `README.md` con la galería y las observaciones de cada foto o video.
 
-> Los videos pesan mucho para Git. Usa **Git LFS** o súbelos a una carpeta compartida (Drive/OneDrive) y deja aquí solo el enlace y una miniatura.
+> Los videos cortos (unos pocos MB) pueden ir directo al repositorio. Para videos largos usa **Git LFS** o una carpeta compartida (Drive/OneDrive), y deja aquí solo el enlace.
 
 ## Métricas de mejora
 

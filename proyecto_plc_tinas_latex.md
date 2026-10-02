@@ -8,6 +8,19 @@
 - Para el despliegue completo a las 24 tinas: arquitectura centralizada de I/O remota (preferida sobre lógica local por grupo, aunque implica dependencia de red). Se evalúa usar sensores IO-Link en vez de salida analógica 4-20mA para reducir costo de módulos y facilitar recolección de datos/visualización.
 - Ya en existencia en la empresa (reservados para el despliegue completo, no para el piloto): módulos **TM3DI16** y **TM3DQ16R**.
 
+## Estado actual en planta (levantamiento fotográfico)
+Galería completa con fotos: [media/00-antes/README.md](media/00-antes/README.md)
+
+- **Gabinete "TINAS DE LATEX B24"**. En la puerta: marcha/paro de **AGITADOR-1** y **AGITADOR-2**, y selector **ELECTROVÁLVULAS** (habilitación general). No tiene indicación de nivel ni de alarmas.
+- **Interior:** 2 LOGO! + ~6 relés de interfaz + **2 filas de ~24 relés numerados**. Es probable que haya un relé por tina para sensor y otro para válvula *(por confirmar)*. También: 3 variadores (2 rotulados *Presecado coagulante* y *Presecado látex*, modelo PI160), guardamotores, interruptor principal, fuente conmutada (probablemente 24VDC), transformador de control y 6 ventiladores.
+- **Campo:** un agitador (motorreductor) por tina; sensores roscados M18 en el borde de cada tina (probablemente los CR18 actuales); válvulas/actuadores de ingreso de látex numerados por tina, con tubería neumática *(por confirmar si son válvulas neumáticas con solenoide piloto)*.
+
+**Implicaciones de diseño:**
+- El selector ELECTROVÁLVULAS se conserva como **permisivo general** de la FSM, cableado a una entrada del PLC.
+- Para 24 tinas se necesitan como mínimo **24 DI (nivel) + 24 DQ (válvulas)**, más la periferia: selector, agitadores, fotoeléctrico(s) y reset.
+- Los símbolos del PLC y el HMI respetan la **numeración de tinas existente en campo**.
+- Los agitadores generan oleaje en la superficie, lo que justifica el antirrebote de nivel (%TM0) y la histéresis futura del ultrasónico.
+
 ## Hardware del piloto (una sola tina)
 
 ### PLC
@@ -281,7 +294,12 @@ Rung 14 — Contadores para métricas  → se integran en las transiciones
 - [ ] Configurar IP fija y Modbus TCP server en ETH1 del TM221
 - [ ] Verificar offset de direcciones Modbus entre HMI y PLC con una variable de prueba
 - [ ] Implementar Rungs 12–14 (espejos, presets con límites, contadores) y pantallas del HMI
-- [ ] Documentación visual: fotos/videos del estado actual antes de modificar nada (ver README)
+- [x] Documentación visual del estado actual ([galería](media/00-antes/README.md))
+- [ ] Identificar el tipo de válvula de ingreso de látex (solenoide directa vs. neumática con piloto) y el voltaje de la bobina
+- [ ] Trazar el cableado de las 2 filas de ~24 relés para confirmar la función por tina
+- [ ] Revisar la placa y la capacidad libre de la fuente conmutada existente (¿alcanza para HMI y sensores?)
+- [ ] Decidir si el selector ELECTROVÁLVULAS se cablea al PLC como permisivo general (propuesto: sí)
+- [ ] Medir el recorte disponible en la puerta del gabinete B24 para el HMI
 - [ ] Al llegar el ultrasónico: integrar a la FSM con histéresis (ver "Lógica futura")
 - [ ] Confirmar voltaje/corriente de las bobinas de las electroválvulas reales de producción antes de dimensionar relés para el despliegue a 24 tinas
 - [ ] Definir arquitectura final de I/O remota centralizada para las 24 tinas (evaluar límites de módulos TM3 del M221 vs. M241/M251, y soporte de maestro IO-Link)
