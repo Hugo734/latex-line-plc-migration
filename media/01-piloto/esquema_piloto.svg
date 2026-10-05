@@ -1,0 +1,262 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1740 1090" width="1740" height="1090" font-family="Segoe UI, Arial, Helvetica, sans-serif">
+  <title>Esquema eléctrico propuesto — Piloto 1 tina (TM221CE16R)</title>
+  <style>
+    .t { font-size: 15px; fill: #222; }
+    .s { font-size: 12px; fill: #444; }
+    .tag { font-size: 15px; font-weight: 700; fill: #111; }
+    .h { font-size: 22px; font-weight: 700; fill: #111; }
+    .sec { font-size: 14px; font-weight: 700; fill: #666; letter-spacing: 1px; }
+    .box { fill: #fff; stroke: #222; stroke-width: 2; }
+    .dev { fill: #f7f7f7; stroke: #222; stroke-width: 1.6; }
+    .ac { stroke: #222; stroke-width: 2.4; fill: none; }
+    .n { stroke: #6d6d6d; stroke-width: 2.4; fill: none; }
+    .pe { stroke: #2e7d32; stroke-width: 2.4; fill: none; stroke-dasharray: 10 4; }
+    .p24 { stroke: #c62828; stroke-width: 2.6; fill: none; }
+    .z0 { stroke: #1565c0; stroke-width: 2.6; fill: none; }
+    .sig { stroke: #e67e22; stroke-width: 2.2; fill: none; }
+    .w { stroke: #222; stroke-width: 1.8; fill: none; }
+    .dot { stroke: none; }
+  </style>
+
+  <rect x="0" y="0" width="1740" height="1090" fill="#ffffff"/>
+
+  <text x="40" y="40" class="h">Esquema eléctrico propuesto — Piloto 1 tina (Modicon TM221CE16R)</text>
+  <text x="40" y="62" class="s">Productos Mayalatex · Línea de inmersión en látex · Rev. A (propuesta, por validar en sitio)</text>
+
+  <!-- ===================== ALIMENTACIÓN CA ===================== -->
+  <text x="1040" y="100" class="sec">ALIMENTACIÓN CA</text>
+  <text x="1040" y="120" class="s">Red 120 VAC (verificar voltaje en sitio)</text>
+
+  <text x="30" y="95" class="t">L</text>
+  <text x="30" y="130" class="t">N</text>
+  <text x="22" y="165" class="t">PE</text>
+
+  <line x1="50" y1="90" x2="820" y2="90" class="ac"/>
+  <line x1="50" y1="125" x2="820" y2="125" class="n"/>
+  <line x1="50" y1="160" x2="1000" y2="160" class="pe"/>
+
+  <!-- QF1 -->
+  <rect x="120" y="75" width="56" height="66" class="box"/>
+  <text x="148" y="105" class="tag" text-anchor="middle">QF1</text>
+  <text x="148" y="125" class="s" text-anchor="middle">C6A 2P</text>
+
+  <!-- Drop a fuente G1 -->
+  <line x1="230" y1="90" x2="230" y2="430" class="ac"/>
+  <line x1="270" y1="125" x2="270" y2="430" class="n"/>
+  <line x1="310" y1="160" x2="310" y2="430" class="pe"/>
+  <circle cx="230" cy="90" r="5" fill="#222" class="dot"/>
+  <circle cx="270" cy="125" r="5" fill="#6d6d6d" class="dot"/>
+  <circle cx="310" cy="160" r="5" fill="#2e7d32" class="dot"/>
+  <rect x="222" y="250" width="16" height="44" class="box"/>
+  <text x="196" y="270" class="tag" text-anchor="end">F2</text>
+  <text x="196" y="287" class="s" text-anchor="end">T 2A</text>
+
+  <!-- Drop a PLC A1 alimentación -->
+  <line x1="590" y1="90" x2="590" y2="260" class="ac"/>
+  <line x1="640" y1="125" x2="640" y2="260" class="n"/>
+  <line x1="690" y1="160" x2="690" y2="260" class="pe"/>
+  <circle cx="590" cy="90" r="5" fill="#222" class="dot"/>
+  <circle cx="640" cy="125" r="5" fill="#6d6d6d" class="dot"/>
+  <circle cx="690" cy="160" r="5" fill="#2e7d32" class="dot"/>
+  <rect x="582" y="186" width="16" height="44" class="box"/>
+  <text x="572" y="206" class="tag" text-anchor="end">F1</text>
+  <text x="572" y="223" class="s" text-anchor="end">T 1A</text>
+
+  <rect x="560" y="260" width="220" height="64" class="box"/>
+  <text x="590" y="278" class="s" text-anchor="middle">L</text>
+  <text x="640" y="278" class="s" text-anchor="middle">N</text>
+  <text x="690" y="278" class="s" text-anchor="middle">PE</text>
+  <text x="670" y="300" class="tag" text-anchor="middle">−A1  TM221CE16R</text>
+  <text x="670" y="317" class="s" text-anchor="middle">Alimentación 100–240 VAC</text>
+
+  <!-- PE a gabinete -->
+  <line x1="1000" y1="160" x2="1000" y2="215" class="pe"/>
+  <line x1="978" y1="215" x2="1022" y2="215" stroke="#2e7d32" stroke-width="3"/>
+  <line x1="986" y1="224" x2="1014" y2="224" stroke="#2e7d32" stroke-width="3"/>
+  <line x1="994" y1="233" x2="1006" y2="233" stroke="#2e7d32" stroke-width="3"/>
+  <text x="1035" y="225" class="s">Barra PE del gabinete / chasis</text>
+
+  <!-- ===================== FUENTE 24 VDC ===================== -->
+  <rect x="200" y="430" width="130" height="130" class="box"/>
+  <text x="230" y="448" class="s" text-anchor="middle">L</text>
+  <text x="270" y="448" class="s" text-anchor="middle">N</text>
+  <text x="310" y="448" class="s" text-anchor="middle">PE</text>
+  <text x="265" y="480" class="tag" text-anchor="middle">−G1</text>
+  <text x="265" y="500" class="t" text-anchor="middle">Fuente</text>
+  <text x="265" y="518" class="t" text-anchor="middle">24 VDC</text>
+  <text x="265" y="536" class="s" text-anchor="middle">≥ 2.5 A</text>
+  <text x="322" y="465" class="s" text-anchor="end">+V</text>
+  <text x="322" y="550" class="s" text-anchor="end">0V</text>
+
+  <polyline points="330,460 360,460 360,370" class="p24"/>
+  <polyline points="330,545 360,545 360,660" class="z0"/>
+  <rect x="352" y="392" width="16" height="44" class="box"/>
+  <text x="378" y="410" class="tag">F3</text>
+  <text x="378" y="426" class="s">T 2A</text>
+
+  <!-- ===================== RIELES DC ===================== -->
+  <line x1="360" y1="370" x2="1660" y2="370" class="p24"/>
+  <line x1="360" y1="660" x2="1660" y2="660" class="z0"/>
+  <text x="1665" y="375" class="tag" fill="#c62828" style="fill:#c62828">+24V</text>
+  <text x="1665" y="665" class="tag" style="fill:#1565c0">0V</text>
+  <text x="1040" y="355" class="sec">CONTROL 24 VDC</text>
+
+  <!-- ===================== ENTRADAS ===================== -->
+  <!-- B1 capacitivo -->
+  <rect x="430" y="440" width="90" height="90" rx="8" class="dev"/>
+  <text x="475" y="470" class="tag" text-anchor="middle">−B1</text>
+  <text x="475" y="490" class="s" text-anchor="middle">Capacitivo</text>
+  <text x="475" y="505" class="s" text-anchor="middle">CR18 · PNP</text>
+  <line x1="450" y1="440" x2="450" y2="370" class="p24"/>
+  <circle cx="450" cy="370" r="5" fill="#c62828" class="dot"/>
+  <text x="456" y="420" class="s">BN</text>
+  <line x1="505" y1="530" x2="505" y2="660" class="z0"/>
+  <circle cx="505" cy="660" r="5" fill="#1565c0" class="dot"/>
+  <text x="512" y="600" class="s">BU</text>
+  <line x1="470" y1="530" x2="470" y2="760" class="sig"/>
+  <text x="400" y="600" class="s">BK / WH ¹</text>
+
+  <!-- B2 emisor -->
+  <rect x="580" y="450" width="80" height="70" rx="8" class="dev"/>
+  <text x="620" y="478" class="tag" text-anchor="middle">−B2</text>
+  <text x="620" y="497" class="s" text-anchor="middle">Emisor</text>
+  <text x="620" y="511" class="s" text-anchor="middle">fotoeléctrico</text>
+  <line x1="600" y1="450" x2="600" y2="370" class="p24"/>
+  <circle cx="600" cy="370" r="5" fill="#c62828" class="dot"/>
+  <line x1="645" y1="520" x2="645" y2="660" class="z0"/>
+  <circle cx="645" cy="660" r="5" fill="#1565c0" class="dot"/>
+
+  <!-- B3 receptor -->
+  <rect x="715" y="440" width="90" height="90" rx="8" class="dev"/>
+  <text x="760" y="470" class="tag" text-anchor="middle">−B3</text>
+  <text x="760" y="490" class="s" text-anchor="middle">Receptor</text>
+  <text x="760" y="505" class="s" text-anchor="middle">PNP · moldes</text>
+  <line x1="735" y1="440" x2="735" y2="370" class="p24"/>
+  <circle cx="735" cy="370" r="5" fill="#c62828" class="dot"/>
+  <line x1="790" y1="530" x2="790" y2="660" class="z0"/>
+  <circle cx="790" cy="660" r="5" fill="#1565c0" class="dot"/>
+  <line x1="760" y1="530" x2="760" y2="760" class="sig"/>
+
+  <!-- S2 reset -->
+  <line x1="900" y1="370" x2="900" y2="470" class="w"/>
+  <circle cx="900" cy="370" r="5" fill="#c62828" class="dot"/>
+  <circle cx="900" cy="472" r="3.5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+  <circle cx="900" cy="518" r="3.5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+  <line x1="900" y1="514" x2="918" y2="478" class="w"/>
+  <line x1="926" y1="482" x2="926" y2="500" class="w"/>
+  <line x1="920" y1="491" x2="940" y2="491" class="w"/>
+  <line x1="900" y1="522" x2="900" y2="760" class="sig"/>
+  <text x="948" y="490" class="tag">−S2</text>
+  <text x="948" y="507" class="s">Reset (NA)</text>
+
+  <!-- S1 selector -->
+  <line x1="1040" y1="370" x2="1040" y2="470" class="w"/>
+  <circle cx="1040" cy="370" r="5" fill="#c62828" class="dot"/>
+  <circle cx="1040" cy="472" r="3.5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+  <circle cx="1040" cy="518" r="3.5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+  <line x1="1040" y1="514" x2="1058" y2="478" class="w"/>
+  <polyline points="1062,474 1070,466 1078,474" class="w"/>
+  <line x1="1040" y1="522" x2="1040" y2="760" class="sig"/>
+  <text x="1048" y="545" class="tag">−S1</text>
+  <text x="1048" y="562" class="s">Selector</text>
+  <text x="1048" y="577" class="s">ELECTROVÁLVULAS</text>
+
+  <!-- COM0 -->
+  <line x1="1090" y1="760" x2="1090" y2="660" class="z0"/>
+  <circle cx="1090" cy="660" r="5" fill="#1565c0" class="dot"/>
+
+  <!-- Bloque entradas PLC -->
+  <rect x="420" y="760" width="700" height="80" class="box"/>
+  <circle cx="470" cy="760" r="5" fill="#fff" stroke="#222" stroke-width="1.8"/>
+  <circle cx="760" cy="760" r="5" fill="#fff" stroke="#222" stroke-width="1.8"/>
+  <circle cx="900" cy="760" r="5" fill="#fff" stroke="#222" stroke-width="1.8"/>
+  <circle cx="1040" cy="760" r="5" fill="#fff" stroke="#222" stroke-width="1.8"/>
+  <circle cx="1090" cy="760" r="5" fill="#fff" stroke="#222" stroke-width="1.8"/>
+  <text x="470" y="782" class="t" text-anchor="middle">I0.0</text>
+  <text x="760" y="782" class="t" text-anchor="middle">I0.1</text>
+  <text x="900" y="782" class="t" text-anchor="middle">I0.2</text>
+  <text x="1040" y="782" class="t" text-anchor="middle">I0.3</text>
+  <text x="1090" y="782" class="t" text-anchor="middle">COM0</text>
+  <text x="440" y="812" class="tag">−A1  TM221CE16R — Entradas digitales (modo source / sensores PNP)</text>
+  <text x="440" y="830" class="s">Terminales de servicio +24V / 0V del PLC: SIN CONECTAR ²</text>
+
+  <!-- ===================== SALIDAS ===================== -->
+  <!-- M1 -->
+  <rect x="1150" y="420" width="220" height="60" class="box"/>
+  <text x="1180" y="437" class="s" text-anchor="middle">COM</text>
+  <text x="1250" y="474" class="s" text-anchor="middle">Q1.0</text>
+  <text x="1330" y="474" class="s" text-anchor="middle">Q1.1</text>
+  <text x="1300" y="445" class="tag" text-anchor="middle">−A2  M1</text>
+  <text x="1300" y="460" class="s" text-anchor="middle">TM3DQ··R ³</text>
+  <line x1="1180" y1="420" x2="1180" y2="370" class="p24"/>
+  <circle cx="1180" cy="370" r="5" fill="#c62828" class="dot"/>
+
+  <!-- K1 coil -->
+  <line x1="1250" y1="480" x2="1250" y2="540" class="w"/>
+  <rect x="1226" y="540" width="48" height="36" class="dev"/>
+  <line x1="1226" y1="576" x2="1274" y2="540" stroke="#222" stroke-width="1.2"/>
+  <text x="1216" y="552" class="s" text-anchor="end">A1</text>
+  <text x="1216" y="580" class="s" text-anchor="end">A2</text>
+  <text x="1216" y="610" class="tag" text-anchor="end">−K1</text>
+  <text x="1216" y="626" class="s" text-anchor="end">Relé aux. 24VDC</text>
+  <line x1="1250" y1="576" x2="1250" y2="660" class="z0"/>
+  <circle cx="1250" cy="660" r="5" fill="#1565c0" class="dot"/>
+
+  <!-- H1 lamp -->
+  <line x1="1330" y1="480" x2="1330" y2="542" class="w"/>
+  <circle cx="1330" cy="560" r="18" fill="#fff" stroke="#222" stroke-width="1.8"/>
+  <line x1="1317" y1="547" x2="1343" y2="573" stroke="#222" stroke-width="1.6"/>
+  <line x1="1343" y1="547" x2="1317" y2="573" stroke="#222" stroke-width="1.6"/>
+  <line x1="1330" y1="578" x2="1330" y2="660" class="z0"/>
+  <circle cx="1330" cy="660" r="5" fill="#1565c0" class="dot"/>
+  <text x="1354" y="600" class="tag">−H1</text>
+  <text x="1354" y="616" class="s">Falla</text>
+
+  <!-- K1 contacto NA -> Y1 -->
+  <line x1="1480" y1="370" x2="1480" y2="420" class="p24"/>
+  <circle cx="1480" cy="370" r="5" fill="#c62828" class="dot"/>
+  <circle cx="1480" cy="422" r="3.5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+  <circle cx="1480" cy="466" r="3.5" fill="#fff" stroke="#222" stroke-width="1.6"/>
+  <line x1="1480" y1="462" x2="1498" y2="428" class="w"/>
+  <text x="1506" y="440" class="tag">K1</text>
+  <text x="1506" y="456" class="s">11–14 (NA)</text>
+  <line x1="1480" y1="470" x2="1480" y2="540" class="p24"/>
+  <circle cx="1480" cy="505" r="5" fill="#c62828" class="dot"/>
+
+  <rect x="1456" y="540" width="48" height="46" class="dev"/>
+  <text x="1480" y="569" class="tag" text-anchor="middle">Y1</text>
+  <line x1="1480" y1="586" x2="1480" y2="660" class="z0"/>
+  <circle cx="1480" cy="625" r="5" fill="#1565c0" class="dot"/>
+  <circle cx="1480" cy="660" r="5" fill="#1565c0" class="dot"/>
+  <text x="1446" y="700" class="tag" text-anchor="end">−Y1  Electroválvula</text>
+  <text x="1446" y="716" class="s" text-anchor="end">Microair FV5221-8 · 24VDC · 0.2A</text>
+
+  <!-- D1 rueda libre -->
+  <polyline points="1480,505 1580,505 1580,548" class="p24"/>
+  <line x1="1564" y1="550" x2="1596" y2="550" stroke="#222" stroke-width="2.4"/>
+  <polygon points="1580,552 1564,580 1596,580" fill="#222"/>
+  <polyline points="1580,580 1580,625 1480,625" class="z0"/>
+  <text x="1606" y="560" class="tag">−D1</text>
+  <text x="1606" y="576" class="s">1N4007</text>
+  <text x="1606" y="592" class="s">cátodo a +</text>
+
+  <!-- ===================== LEYENDA Y NOTAS ===================== -->
+  <line x1="30" y1="870" x2="1670" y2="870" stroke="#ccc" stroke-width="1"/>
+  <text x="40" y="900" class="sec">LEYENDA</text>
+  <line x1="40" y1="925" x2="90" y2="925" class="ac"/><text x="100" y="930" class="s">Fase L (CA)</text>
+  <line x1="40" y1="950" x2="90" y2="950" class="n"/><text x="100" y="955" class="s">Neutro N (CA)</text>
+  <line x1="40" y1="975" x2="90" y2="975" class="pe"/><text x="100" y="980" class="s">Tierra PE (verde/amarillo)</text>
+  <line x1="40" y1="1000" x2="90" y2="1000" class="p24"/><text x="100" y="1005" class="s">+24 VDC</text>
+  <line x1="40" y1="1025" x2="90" y2="1025" class="z0"/><text x="100" y="1030" class="s">0V (común 24 VDC) — no es "−24V"</text>
+  <line x1="40" y1="1050" x2="90" y2="1050" class="sig"/><text x="100" y="1055" class="s">Señal a entrada del PLC</text>
+  <circle cx="65" cy="1073" r="5" fill="#222"/><text x="100" y="1078" class="s">Unión. Cruce sin punto = no hay conexión</text>
+
+  <text x="420" y="900" class="sec">NOTAS</text>
+  <text x="420" y="925" class="s">¹ Hilo de salida de −B1: negro (NA) o blanco (salida complementaria NC en sensores de 4 hilos). Verificar etiqueta del Autonics.</text>
+  <text x="420" y="947" class="s">   COM0 a 0V solo sirve con sensores PNP. Si −B1/−B3 son NPN, COM0 va a +24V y todos los sensores del grupo deben ser NPN.</text>
+  <text x="420" y="969" class="s">² No unir el +24V de servicio del PLC con +24V de −G1 (dos fuentes en paralelo). Todos los sensores se alimentan de −G1.</text>
+  <text x="420" y="991" class="s">³ Módulo en posición 1 del IO Bus según cableado actual. Si se usan salidas integradas, Q0.0/Q0.1 se cablean igual (su COM a +24V).</text>
+  <text x="420" y="1013" class="s">   Confirmar orden del IO Bus: si M1 es de salidas, el TM3AI2H queda en posición 2 (%IW2.0).</text>
+  <text x="420" y="1035" class="s">Sección de cable sugerida: CA 1.5 mm² (16 AWG) · 24 VDC 0.75–1 mm² (18 AWG) · PE 1.5 mm² verde/amarillo · campo: cable PUR (amoniaco, 50 °C).</text>
+  <text x="420" y="1057" class="s">0V a PE (punto único, opcional): reduce ruido; si se hace, en un solo punto junto a −G1.  Valores de QF1/F1/F2/F3 a confirmar con consumos reales.</text>
+</svg>

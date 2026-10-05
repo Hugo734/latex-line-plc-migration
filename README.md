@@ -20,8 +20,10 @@ La línea actual se controla con dos LOGO! y lógica de relés. Ya hubo **rebals
 | Documento | Contenido |
 |---|---|
 | [proyecto_plc_tinas_latex.md](proyecto_plc_tinas_latex.md) | Documento técnico: hardware, mapa de I/O, FSM de llenado, conexiones, HMI, commissioning y pendientes |
+| [plc/](plc/README.md) | Programa del PLC: diagrama ladder, código IL y guía paso a paso para cargarlo y probarlo |
 | [media/](media/) | Fotografías y videos del proceso (antes / durante / después) |
 | [media/00-antes/](media/00-antes/README.md) | Levantamiento del estado actual: galería con observaciones por foto |
+| [media/01-piloto/](media/01-piloto/README.md) | Piloto: esquema eléctrico propuesto, revisión del borrador y procedimiento de verificación |
 
 ## Hoja de ruta
 

@@ -35,6 +35,7 @@ Galería completa con fotos: [media/00-antes/README.md](media/00-antes/README.md
 - Comprado según cotización (proveedor SCP, Q2,200.00, cotización #26161)
 - Agregado en IO Bus del proyecto como "Module 1", ocupa direcciones **%IW1.x**
 - Nota de direccionamiento: en el bus TM3 la dirección depende de la **posición** del módulo. Como el TM3AI2H es el Module 1, un módulo de salidas digitales agregado después sería Module 2 → **%Q2.x** (no %Q1.x).
+- ⚠️ **Contradicción por resolver:** el esquema de conexión del piloto ([media/01-piloto](media/01-piloto/README.md)) y el programa actual usan **%Q1.0 en un módulo "M1"** de salidas digitales, y el programa compila sin error. Si M1 es un módulo de salidas, el TM3AI2H está en la posición 2 → **%IW2.0**. Hay que confirmar en *Configuration → IO Bus* y actualizar el mapa de I/O.
 
 ### Sensor de nivel (piloto analógico) — AÚN NO LLEGA
 - **SICK UM18-21712D211**: ultrasónico, rango de detección 20-150mm, salida analógica **0-10V** (también soporta IO-Link)
@@ -55,7 +56,7 @@ Galería completa con fotos: [media/00-antes/README.md](media/00-antes/README.md
 ### Electroválvula (prueba simple)
 - **Microair FV5221-8**, bobina **DC24V**, consumo **4.8W → 0.2A (200mA)**
 - Corriente baja: cable 18-22 AWG es suficiente; el relé auxiliar y la salida de relé del PLC tienen margen de sobra
-- Activada mediante **%Q0.0** (salida de relé integrada). Antes se había planteado %Q1.0, pero esa dirección solo existe si hay un módulo de salidas digitales en la posición 1 del bus, y ahí está el TM3AI2H.
+- Activada mediante **%Q1.0** (módulo de salidas M1, según cableado del piloto) a través del relé auxiliar K1. Pendiente confirmar modelo de M1 y orden del IO Bus (ver nota del módulo analógico).
 
 ## Mapa de I/O del piloto
 
@@ -64,12 +65,13 @@ Galería completa con fotos: [media/00-antes/README.md](media/00-antes/README.md
 | %I0.0 | CAP_NIVEL | Sensor capacitivo Autonics CR18-8A | Instalado (polaridad por confirmar) |
 | %I0.1 | FOTO_MOLDE | Receptor fotoeléctrico de barrera | Por instalar |
 | %I0.2 | BTN_RESET | Pulsador NA de reset de falla (opcional) | Opcional |
+| %I0.3 | SEL_EV | Selector ELECTROVÁLVULAS del gabinete (habilitación general) | Propuesto — falta agregarlo a la FSM |
 | %IW1.0 | NIVEL_US | Ultrasónico SICK UM18 (mm de distancia) | Sensor no ha llegado |
-| %Q0.0 | EV_LLENADO | Relé auxiliar → electroválvula FV5221-8 | Instalado |
-| %Q0.1 | LAMP_FALLA | Lámpara/indicador de falla (opcional) | Opcional |
+| %Q1.0 | EV_LLENADO | Relé auxiliar K1 → electroválvula FV5221-8 (módulo M1) | Instalado |
+| %Q1.1 | LAMP_FALLA | Lámpara/indicador de falla (opcional) | Opcional |
 | %M0 | NIVEL_OK | Nivel alcanzado (polaridad ya corregida) | Interno |
 | %M1 | MOLDE_DET | Molde detectado (polaridad ya corregida) | Interno |
-| %M2 | EV_ESPEJO | Copia de %Q0.0 para HMI | Interno / HMI |
+| %M2 | EV_ESPEJO | Copia de %Q1.0 para HMI | Interno / HMI |
 | %M3 | MOLDES_ESPEJO | Copia de %TM1.Q para HMI | Interno / HMI |
 | %M10 | RESET_SW | Reset de falla desde HMI o tabla de animación | Interno / HMI |
 | %MW0 | ESTADO | Estado de la FSM (0/1/2) | Interno / HMI |
@@ -79,12 +81,13 @@ Galería completa con fotos: [media/00-antes/README.md](media/00-antes/README.md
 | %TM0 | T_NIVEL_BAJO | TON — confirma nivel bajo (antirrebote) | Interno |
 | %TM1 | T_MOLDES | TOF — mantiene "moldes presentes" entre molde y molde | Interno |
 | %TM2 | T_TIMEOUT | TON — tiempo máximo de llenado | Interno |
+| %TM3 | T_REPOSO | TON — reposo mínimo en ESPERA antes de volver a llenar | Interno |
 
 ## Lógica ladder (EcoStruxure Machine Expert Basic)
 
 ### Rung simple de prueba (sensor capacitivo → electroválvula) — compila con 0 errores, falta prueba física
 ```
-%I0.0 (negado, NC) ──────( ) %Q0.0
+%I0.0 (negado, NC) ──────( ) %Q1.0
 ```
 - Sensor detecta (I0.0 = ON, hay líquido) → contacto negado abierto → salida OFF → válvula cerrada
 - Sensor deja de detectar (I0.0 = OFF, líquido bajó) → contacto negado cierra → salida ON → válvula abierta (llenando)
@@ -105,7 +108,7 @@ Galería completa con fotos: [media/00-antes/README.md](media/00-antes/README.md
 ```mermaid
 stateDiagram-v2
     [*] --> ESPERA : arranque (%S13)
-    ESPERA --> LLENANDO : nivel bajo confirmado (%TM0.Q)\nY moldes presentes (%TM1.Q)
+    ESPERA --> LLENANDO : nivel bajo confirmado (%TM0.Q)\nY moldes presentes (%TM1.Q)\nY reposo cumplido (%TM3.Q)
     LLENANDO --> ESPERA : nivel OK (%M0)\nO sin moldes (NOT %TM1.Q)
     LLENANDO --> FALLA : timeout (%TM2.Q)
     FALLA --> ESPERA : reset (%I0.2 o %M10)
@@ -118,6 +121,7 @@ stateDiagram-v2
 | %TM0 | TON | 2 s | El nivel debe estar bajo de forma continua 2 s antes de abrir (evita abrir/cerrar por oleaje del látex). |
 | %TM1 | TOF | 5 s | "Moldes presentes" se mantiene 5 s después del último molde, para que el hueco entre moldes no corte el llenado. Ajustar al tiempo real entre moldes. |
 | %TM2 | TON | 30 s | Tiempo máximo de llenado por ciclo. Calibrar: ~1.5–2× el tiempo normal de llenado medido. |
+| %TM3 | TON | 5 s | **Reposo** mínimo en ESPERA antes de volver a llenar. Deja que la superficie se asiente tras cerrar la válvula y evita ciclos cortos de abrir/cerrar (desgaste del solenoide). |
 
 > Los presets son valores iniciales; se calibran en la prueba física.
 
@@ -144,6 +148,9 @@ Rung 4  — Retención de moldes presentes
 Rung 5  — Timeout de llenado
   [ %MW0 = 1 ] ─────────────────────────────────[ %TM2 TON 30s ]
 
+Rung 5b — Reposo en ESPERA
+  [ %MW0 = 0 ] ─────────────────────────────────[ %TM3 TON 5s ]
+
 Rung 6  — Transición LLENANDO → FALLA
   [ %MW0 = 1 ]──%TM2.Q ─────────────────────────[ %MW0 := 2 ]
 
@@ -152,17 +159,17 @@ Rung 7  — Transición LLENANDO → ESPERA
                 └── %TM1.Q (neg) ─┘
 
 Rung 8  — Transición ESPERA → LLENANDO
-  [ %MW0 = 0 ]──%TM0.Q──%TM1.Q ─────────────────[ %MW0 := 1 ]
+  [ %MW0 = 0 ]──%TM0.Q──%TM1.Q──%TM3.Q ─────────[ %MW0 := 1 ]
 
 Rung 9  — Transición FALLA → ESPERA (reset)
   [ %MW0 = 2 ]──┬── %I0.2 ──┬───────────────────[ %MW0 := 0 ]
                 └── %M10 ───┘
 
 Rung 10 — Salida electroválvula (con enclavamientos redundantes)
-  [ %MW0 = 1 ]──%M0 (neg)──%TM1.Q ──────────────( ) %Q0.0
+  [ %MW0 = 1 ]──%M0 (neg)──%TM1.Q ──────────────( ) %Q1.0   (según cableado actual, módulo M1)
 
 Rung 11 — Indicador de falla (parpadeo 1 Hz con %S6)
-  [ %MW0 = 2 ]──%S6 ────────────────────────────( ) %Q0.1
+  [ %MW0 = 2 ]──%S6 ────────────────────────────( ) %Q1.1
 ```
 
 **Notas de diseño:**
@@ -173,12 +180,68 @@ Rung 11 — Indicador de falla (parpadeo 1 Hz con %S6)
 - **Orden de rungs:** las transiciones que salen de LLENANDO (Rungs 6–7) van antes de la de entrada (Rung 8). Así no hay rebotes de estado dentro del mismo scan.
 - **Limitación conocida:** el timeout es por ciclo. Si los moldes se pierden más de 5 s (TOF), el ciclo termina y el contador se reinicia al siguiente ciclo.
 - Sin pulsador físico, el reset se hace forzando %M10 = 1 desde la tabla de animación (y regresándolo a 0).
+- **Reposo (%TM3):** con un sensor de un solo punto, el nivel oscila alrededor del punto de detección (oleaje, agitadores). Sin reposo, la válvula abriría y cerraría muchas veces por minuto. %TM3 obliga a esperar 5 s en ESPERA antes de un nuevo llenado. Al pasar a RUN también hay que esperar el reposo.
+- Programa listo para pegar en IL: [plc/fsm_llenado_v1.il](plc/fsm_llenado_v1.il).
 
-### Lógica futura con sensor ultrasónico (cuando llegue el UM18)
-- El UM18 mide **distancia del sensor a la superficie**, no nivel: tina baja = distancia **mayor**. La condición de nivel bajo es `%IW1.0 >= umbral`, no `<=`.
-- El umbral debe estar **dentro del escalado 20–150 mm** (el `<= 200` planteado antes se cumplía siempre).
-- Plan: el ultrasónico sustituye o complementa a %M0 con histéresis (dos umbrales: abrir y cerrar), manteniendo la misma FSM, el permisivo de moldes y el timeout. Se descarta el llenado por tiempo fijo con TP, porque no tiene realimentación de nivel.
-- Para detección de falla: revisar el bit/diagnóstico de fuera de rango del TM3AI2H (por ejemplo, cable cortado → 0V).
+### FSM v2: ultrasónico + fotoeléctrico + capacitivo de seguridad + electroválvula
+Programa: [plc/fsm_llenado_v2.il](plc/fsm_llenado_v2.il). La v1 ya funcionó en físico con capacitivo y electroválvula. La v2 conserva la misma FSM y cambia la fuente de la señal de nivel.
+
+**Roles de cada sensor:**
+
+| Sensor | Entrada | Rol en v2 |
+|---|---|---|
+| Ultrasónico SICK UM18 | %IW2.0 (TM3AI2H en posición 2) | **Control** de nivel continuo, con histéresis |
+| Fotoeléctrico | %I0.1 | Permisivo: sin moldes no se llena |
+| Capacitivo Autonics CR18 | %I0.0 | **Protección independiente de NIVEL MUY ALTO** (alto-alto). Se reubica unos mm arriba del nivel máximo normal. |
+| Electroválvula | %Q1.0 | Actuador |
+
+> Por qué conservar el capacitivo: el ultrasónico puede leer mal con **espuma o nata de látex**, salpicaduras sobre la cara del sensor u ondas fuertes. Un segundo sensor de otro principio, independiente, es la protección contra el rebalse que motivó el proyecto.
+
+**Del ultrasónico al nivel:**
+1. TM3AI2H canal 0: tipo 0–10 V, escalado Min 20 / Max 150 → `%IW2.0` = **distancia** en mm del sensor a la superficie.
+2. El PLC calcula `NIVEL = REF_NIVEL − distancia` (`%MW40 := %MW41 − %MW44`). Así un número mayor significa más líquido, que es más intuitivo para operar y monitorear.
+3. **Histéresis** con dos puntos (sustituye al Rung 1 de v1):
+   - nivel ≥ `SP_ALTO` (%MW43) → `%M0 NIVEL_OK` = 1 (SET) → la válvula cierra;
+   - nivel ≤ `SP_BAJO` (%MW42) → `%M0` = 0 (RESET) → se permite llenar.
+   - Entre los dos puntos, `%M0` conserva su valor. Eso evita abrir y cerrar seguido.
+4. El resto de la FSM (timers, moldes, timeout, reposo) es igual a v1. `%TM0` baja a 1 s porque la histéresis ya filtra la mayor parte del oleaje.
+
+**Cambios en la FSM:**
+- Nueva transición **cualquier estado → FALLA** si el capacitivo detecta nivel muy alto (`%M5`). El reset solo se acepta cuando el nivel ya bajó.
+- `%MW1` **código de falla**: 1 = timeout, 2 = nivel muy alto. Sirve para el monitoreo.
+- Enclavamiento adicional en la válvula: `ANDN %M5`.
+- `%TM2` (timeout) sube a 60 s como valor inicial, porque ahora se llena una banda completa (SP_BAJO → SP_ALTO). Calibrar midiendo el tiempo real.
+
+```mermaid
+stateDiagram-v2
+    [*] --> ESPERA : arranque
+    ESPERA --> LLENANDO : nivel ≤ SP_BAJO (1 s)\nY moldes Y reposo 5 s\nY sin nivel muy alto
+    LLENANDO --> ESPERA : nivel ≥ SP_ALTO\nO sin moldes
+    LLENANDO --> FALLA : timeout (código 1)
+    ESPERA --> FALLA : capacitivo nivel muy alto (código 2)
+    LLENANDO --> FALLA : capacitivo nivel muy alto (código 2)
+    FALLA --> ESPERA : reset Y sin nivel muy alto
+```
+
+**Parámetros (valores de ejemplo; calibrar en sitio):**
+
+| Registro | Nombre | Ejemplo | Cómo calibrar |
+|---|---|---|---|
+| %MW41 | REF_NIVEL | 150 mm | Distancia del sensor al "nivel cero" que se elija (por ejemplo, el nivel mínimo aceptable) |
+| %MW42 | SP_BAJO | 50 mm | Nivel en el que debe empezar a llenar |
+| %MW43 | SP_ALTO | 70 mm | Nivel de llenado normal. Debe quedar **por debajo** del capacitivo alto-alto. |
+
+**Montaje del ultrasónico (rango 20–150 mm):**
+- El nivel **máximo** nunca debe acercarse a menos de ~30 mm de la cara del sensor. Por debajo de 20 mm está la zona ciega y la lectura no es confiable.
+- Toda la banda de trabajo (SP_BAJO ↔ capacitivo alto-alto) debe caber en 20–150 mm de distancia.
+- Montarlo perpendicular a la superficie, lejos de la pared de la tina, del chorro de llenado y de los agitadores.
+- Proteger la cara del sensor de salpicaduras de látex.
+
+**Falla del ultrasónico:**
+- Cable cortado → 0 V → distancia mínima (20 mm) → nivel "lleno" → la válvula no abre. **Falla segura**, siempre que la rampa sea creciente; verificarlo en la calibración.
+- Lectura falsa de "nivel bajo" (espuma, sensor sucio) → llena hasta que corta el capacitivo alto-alto o el timeout.
+
+**Variables nuevas:** `%MW1` FALLA_COD, `%MW40` NIVEL_MM, `%MW41–43` parámetros, `%MW44` DISTANCIA_MM (cruda), `%M5` NIVEL_MUY_ALTO.
 
 ## HMI Wecon
 
@@ -205,7 +268,7 @@ Regla: **el HMI solo lee/escribe %M y %MW.** No accede directo a %I ni %Q. El pr
 | %MW0 | Holding register 0 | Lectura | Estado FSM (0 ESPERA / 1 LLENANDO / 2 FALLA) |
 | %M0 | Coil 0 | Lectura | Nivel OK |
 | %M1 | Coil 1 | Lectura | Molde detectado |
-| %M2 | Coil 2 | Lectura | Copia de %Q0.0 (válvula abierta) |
+| %M2 | Coil 2 | Lectura | Copia de %Q1.0 (válvula abierta) |
 | %M3 | Coil 3 | Lectura | Copia de %TM1.Q (moldes presentes, filtrado) |
 | %M10 | Coil 10 | Escritura (botón momentáneo) | Reset de falla |
 | %MW20 | Holding register 20 | Lectura/escritura | Preset %TM0 nivel bajo (s) |
@@ -220,7 +283,7 @@ Regla: **el HMI solo lee/escribe %M y %MW.** No accede directo a %I ni %Q. El pr
 ### Rungs adicionales para el HMI
 ```
 Rung 12 — Espejo de salida y moldes para HMI
-  %Q0.0 ─────────────────────────────────────────( ) %M2
+  %Q1.0 ─────────────────────────────────────────( ) %M2
   %TM1.Q ────────────────────────────────────────( ) %M3
 
 Rung 13 — Presets ajustables desde HMI (con límites)  → insertar ANTES del Rung 3
@@ -253,6 +316,69 @@ Rung 14 — Contadores para métricas  → se integran en las transiciones
 - Los HMI Wecon normalmente se alimentan a **24VDC** (confirmar en el datasheet del modelo).
 - La fuente de sensores integrada del TM221 (250mA) **no alcanza**. Se necesita una **fuente 24VDC externa** (por ejemplo 2.5A en riel DIN), que también puede alimentar sensores, el relé auxiliar y la válvula.
 
+## Monitoreo desde PC (sin HMI)
+
+El TM221 puede entregar sus datos a una PC usando **el mismo mapa Modbus que el HMI** (sección anterior). La PC lee los registros y los muestra en un tablero.
+
+### Conexión: Ethernet (recomendada) o serial
+
+| | Ethernet — Modbus TCP | Serial SL1 — Modbus RTU |
+|---|---|---|
+| Hardware | Cable de red (directo o vía switch) | Adaptador USB–RS485 + cable al SL1 |
+| Configuración PLC | IP fija + Modbus TCP server en ETH1 | SL1 como Modbus esclavo (velocidad, paridad, dirección) |
+| Conviven PC y HMI | Sí, cada uno es un cliente TCP | No en el mismo puerto (RS485 admite un solo maestro) |
+| Machine Expert al mismo tiempo | Sí (por USB o por Ethernet) | Sí (por USB) |
+| Recomendación | ✅ Usar esta | Solo si no hay Ethernet disponible |
+
+**Red de prueba:** PLC `192.168.1.10`, PC `192.168.1.20`, máscara `255.255.255.0`, puerto 502.
+
+### Qué leer
+
+| Modbus | Variable | Dato |
+|---|---|---|
+| Holding register 0 | %MW0 | Estado FSM (0/1/2) |
+| Holding register 1 | %MW1 | Código de falla |
+| Holding register 40 | %MW40 | Nivel (mm) |
+| Holding register 44 | %MW44 | Distancia cruda del ultrasónico (mm) |
+| Holding registers 41–43 | %MW41–43 | Parámetros (lectura/escritura) |
+| Holding registers 30–31 | %MW30–31 | Contadores de llenados y fallas (cuando se agreguen) |
+| Coils 0, 1, 2, 3, 5 | %M0, %M1, %M2, %M3, %M5 | Nivel OK, molde, válvula, moldes filtrados, nivel muy alto |
+
+> Las entradas analógicas (%IW) no se leen directo por Modbus en el M221. Por eso el programa las copia a %MW (Rung 1 de v2). Pasa lo mismo con las salidas: se copian a %M (Rungs 17–18).
+
+### Opciones de software (de lo más simple a lo más completo)
+
+| Opción | Para qué sirve | Costo | Esfuerzo |
+|---|---|---|---|
+| **Tabla de animación de Machine Expert** | Ver valores en línea mientras se programa | Incluido | Ninguno |
+| **QModMaster** / Modbus Poll | Probar que la comunicación funciona y ver registros crudos | Gratis / prueba | Bajo |
+| **Node-RED** + `node-red-contrib-modbus` + `@flowfuse/node-red-dashboard` | **Tablero web** con indicador de nivel, estado, válvula, gráfica en el tiempo, alarmas y registro a CSV. Se ve desde cualquier navegador de la red. | Gratis (open source) | Medio |
+| **FUXA** | SCADA web open source con editor gráfico de pantallas (dibujar la tina, animaciones) | Gratis | Medio |
+| **Grafana + InfluxDB** (alimentados por Node-RED o Telegraf) | Históricos de semanas o meses, comparación antes/después, reportes | Gratis | Medio–alto |
+| **Ignition Maker / Edge** | SCADA industrial completo | Licencia (Maker solo uso no comercial) | Alto |
+
+**Recomendación:** **Node-RED** como primer paso. Corre en la misma PC de ingeniería con Windows, lee el PLC por Modbus TCP y da un tablero web en `http://localhost:1880/dashboard`. Ese mismo flujo puede guardar los datos (CSV o InfluxDB) para las métricas antes/después del README. Más adelante se agrega Grafana para históricos sin cambiar nada en el PLC.
+
+### Arquitectura propuesta
+```
+[TM221 ETH1 192.168.1.10] ──Ethernet── [Switch] ──── [PC 192.168.1.20]
+                                          │              ├─ Node-RED (lee Modbus TCP cada 1 s)
+                                          │              │    ├─ Dashboard web (nivel, estado, válvula, alarmas)
+                                          │              │    └─ Registro CSV / InfluxDB
+                                          │              └─ Machine Expert Basic
+                                          └──── [HMI Wecon] (futuro, mismo mapa Modbus)
+```
+
+### Pasos
+1. En Machine Expert: **Configuration → ETH1** → IP fija `192.168.1.10` y habilitar **Modbus server**. Descargar.
+2. En la PC: configurar la tarjeta de red con IP fija `192.168.1.20 / 255.255.255.0`.
+3. Probar con **QModMaster**: leer holding registers 0–44 y comparar con la tabla de animación. Así se confirma también si hay offset de dirección (base 0 o base 1).
+4. Instalar **Node.js (LTS)** y **Node-RED**, más los nodos `node-red-contrib-modbus` y `@flowfuse/node-red-dashboard`.
+5. Importar el flujo del tablero (por hacer: `monitoreo/node-red-flow.json`).
+6. Agregar el registro a CSV y, más adelante, InfluxDB + Grafana.
+
+> **Seguridad:** el Modbus TCP del M221 no tiene contraseña. Cualquier equipo en la misma red puede leer **y escribir**. Mantener el PLC en una red aislada de planta, no en la red de oficina ni con acceso a internet. Permitir escribir desde la PC solo los parámetros (%MW41–43) y el reset (%M10).
+
 ## Conexiones eléctricas (esquemas acordados)
 
 ### Entradas
@@ -280,13 +406,18 @@ Rung 14 — Contadores para métricas  → se integran en las transiciones
 5. **Error de comunicación tras conectar alimentación** ("Communication detected error... verify USB cable, Modbus Driver parameters, controller connection or power supply") — posibles causas a revisar: cable USB, estabilidad de la alimentación principal, puerto COM reasignado, u otro software usando el puerto. Pendiente de resolución.
 
 ## Pendientes / próximos pasos
-- [ ] Prueba física del capacitivo: confirmar si %I0.0 = ON significa "hay líquido" o "sin líquido" y ajustar el Rung 1
+- [x] Prueba física de la FSM v1 con capacitivo y electroválvula (funcionó)
+- [ ] Anotar la polaridad confirmada del capacitivo (¿%I0.0 = ON con líquido?) para el Rung 5 de v2
+- [ ] Confirmar en Configuration → IO Bus que el TM3AI2H está en la posición 2 (%IW2.0)
+- [ ] Calibrar el ultrasónico: rampa (creciente/inversa), REF_NIVEL, SP_BAJO, SP_ALTO; reubicar el capacitivo como alto-alto
+- [ ] Cargar y probar la FSM v2 ([plc/fsm_llenado_v2.il](plc/fsm_llenado_v2.il))
+- [ ] Monitoreo en PC: IP fija + Modbus server, prueba con QModMaster, tablero en Node-RED
 - [ ] Confirmar sufijo completo del Autonics CR18-8A (DC NPN/PNP vs. AC)
 - [ ] Confirmar datasheet/modelo exacto de los sensores fotoeléctricos (PNP/NPN, pinout, modo Light-ON/Dark-ON) y ajustar el Rung 2
 - [ ] Medir el tiempo normal de llenado y calibrar el preset de %TM2 (timeout)
 - [ ] Medir el tiempo entre moldes y calibrar el preset de %TM1 (TOF)
 - [ ] Cargar la FSM en Machine Expert Basic y probar cada transición, incluida la FALLA por timeout (simular desconectando el capacitivo)
-- [ ] Decidir si se instala pulsador de reset (%I0.2) y lámpara de falla (%Q0.1)
+- [ ] Decidir si se instala pulsador de reset (%I0.2) y lámpara de falla (%Q1.1)
 - [ ] Resolver el error de comunicación actual tras conectar alimentación principal
 - [ ] Verificar consumo del sensor capacitivo y del fotoeléctrico contra el límite de 250mA de la fuente de sensores integrada del PLC
 - [ ] HMI Wecon: confirmar modelo, software (PIStudio / LeviStudioU), puertos y alimentación
@@ -295,6 +426,7 @@ Rung 14 — Contadores para métricas  → se integran en las transiciones
 - [ ] Verificar offset de direcciones Modbus entre HMI y PLC con una variable de prueba
 - [ ] Implementar Rungs 12–14 (espejos, presets con límites, contadores) y pantallas del HMI
 - [x] Documentación visual del estado actual ([galería](media/00-antes/README.md))
+- [ ] Corregir el esquema de conexión del piloto según la revisión en [media/01-piloto](media/01-piloto/README.md): 0V común entre la fuente y el PLC, PE, protecciones, diodo de rueda libre, hilo de salida del sensor
 - [ ] Identificar el tipo de válvula de ingreso de látex (solenoide directa vs. neumática con piloto) y el voltaje de la bobina
 - [ ] Trazar el cableado de las 2 filas de ~24 relés para confirmar la función por tina
 - [ ] Revisar la placa y la capacidad libre de la fuente conmutada existente (¿alcanza para HMI y sensores?)
