@@ -45,7 +45,30 @@ Galería completa con fotos: [media/00-antes/README.md](media/00-antes/README.md
 ### Sensores fotoeléctricos (emisor/receptor) — detección de moldes
 - Tipo barrera: el **emisor** solo requiere alimentación (24VDC, 2 hilos); el **receptor** requiere alimentación + salida de señal (PNP/NPN) hacia una entrada digital del PLC → **%I0.1**
 - Función: permisivo de llenado. **Si no detecta moldes, la tina no se llena** (evita llenar antes de que los moldes entren a la tina de látex).
-- Pendiente: confirmar datasheet/modelo exacto para validar polaridad PNP/NPN, pinout del conector y modo **Light-ON / Dark-ON** del receptor (define si %I0.1 = ON significa "molde presente" o "haz libre").
+- **Especificación decidida para el receptor:**
+  - **PNP**: el COM0 del PLC está cableado a 0V (modo source) y así funcionó el capacitivo. Todas las entradas de ese común deben ser PNP.
+  - **Dark-ON**: la salida se activa cuando un molde **interrumpe** el haz → `%I0.1 = 1` = molde presente. Si se corta el cable o se pierde la alimentación del receptor, se lee "sin moldes" y no llena (falla segura).
+  - 10–30 VDC, conector M12, IP67, carcasa resistente a amoniaco. Si el modelo trae selector L.ON/D.ON, dejarlo en D.ON.
+- Falla que Dark-ON **no** cubre: si el emisor se apaga, se desalinea o se ensucia, el receptor ve "oscuro" y marca molde presente todo el tiempo. Ese caso lo cubren el capacitivo alto-alto y el timeout. Opción: alarma si el haz queda interrumpido de forma continua más tiempo que el paso normal de un molde.
+- **Modelo disponible (genérico tipo E3F-20, barrera):**
+
+  | Pieza | Modelo | Hilos | Datos de etiqueta |
+  |---|---|---|---|
+  | Emisor | **E3F-20DNL** | BN (+), BU (−) | 6–36 VDC |
+  | Receptor | **E3F-20DC1** | BN (+), BK (salida), BU (−) | 6–36 VDC, salida **NPN NO**, 300 mA máx. |
+
+  Fotos de etiquetas: [emisor](media/01-piloto/Etiqueta%20emisor%20fotoelectrico%20E3F-20DNL.png) · [receptor](media/01-piloto/Etiqueta%20receptor%20fotoelectrico%20E3F-20DC1.png).
+  En estos genéricos "NO" no indica de forma confiable si es Light-ON o Dark-ON, y no suelen traer selector. Se define en la prueba: tapar el haz y ver si la salida se activa.
+- **Actualización:** el fotoeléctrico disponible para el piloto es **NPN**. Como el capacitivo funciona con COM0 a 0V (PNP), no se pueden cablear los dos directo al mismo común. Opciones:
+
+  | Opción | Cómo | Pros / contras |
+  |---|---|---|
+  | **A. Relé de interfaz (recomendada para el piloto)** | El NPN activa la bobina de un relé 24VDC (K2); el contacto NA de K2 lleva +24V a %I0.1. COM0 se queda en 0V. | Se usa el sensor que ya se tiene, no se toca el capacitivo, aísla el sensor y conserva la falla segura (cable cortado → K2 suelta → "sin moldes"). Agrega ~10 ms de retardo, irrelevante aquí. |
+  | B. Todo NPN | COM0 a +24V. El capacitivo debe cambiarse por la versión NPN (CR18-8**DN**). | Cableado directo; requiere comprar otro capacitivo. |
+  | C. Reemplazar el fotoeléctrico | Comprar receptor PNP, o uno con salida seleccionable. | Lo más limpio a largo plazo y para el despliegue a 24 tinas. |
+  | ✗ Resistencia pull-up | NPN con resistencia a +24V | No recomendada: invierte la lógica y con el cable cortado lee "molde presente". |
+
+  ⚠️ **No mover COM0 a +24V con el capacitivo PNP conectado**: %I0.0 quedaría siempre en 0 ("sin líquido") y la FSM llenaría hasta que corte el timeout.
 
 ### Sensor capacitivo (prueba simple, réplica de lo instalado actualmente en las tinas)
 - **Autonics CR18-8A** (capacitivo, con electrodos auxiliares) — mismo tipo ya instalado en las tinas actuales
