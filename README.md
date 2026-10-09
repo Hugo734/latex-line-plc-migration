@@ -21,6 +21,7 @@ La línea actual se controla con dos LOGO! y lógica de relés. Ya hubo **rebals
 |---|---|
 | [proyecto_plc_tinas_latex.md](proyecto_plc_tinas_latex.md) | Documento técnico: hardware, mapa de I/O, FSM de llenado, conexiones, HMI, commissioning y pendientes |
 | [docs/conexiones_plc.md](docs/conexiones_plc.md) | Diagrama de conexiones del tablero piloto (Rev. B) con borneras X1/X2 y relés K1/K2/K3, y lista de cables |
+| [docs/estados_del_sistema.md](docs/estados_del_sistema.md) | Estados del llenado: piloto actual (verificado), línea de 24 tinas con capacitivos y versión con ultrasónico |
 | [docs/logica_del_sistema.md](docs/logica_del_sistema.md) | Explicación de la lógica de llenado: estados, timers, transiciones, ciclo de scan y qué pasa ante cada falla |
 | [plc/](plc/README.md) | Programa del PLC: diagrama ladder, código IL y guía paso a paso para cargarlo y probarlo |
 | [media/](media/) | Fotografías y videos del proceso (antes / durante / después) |
